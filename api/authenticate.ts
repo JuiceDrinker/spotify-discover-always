@@ -9,7 +9,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     redirect_uri: "https://spotify-discover-always.vercel.app/api/hello",
     state: generateRandomString(16),
   };
-  console.log(params.client_id);
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
       new URLSearchParams(params).toString()
