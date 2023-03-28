@@ -17,7 +17,6 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "query-string": "^8.1.0",
     "spotify-web-api-node": "^5.0.2"
   }
 }
