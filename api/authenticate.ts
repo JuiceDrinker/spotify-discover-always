@@ -6,7 +6,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     response_type: "code",
     client_id: process.env.CLIENT_ID || "dummyClientId",
     scope: scope,
-    redirect_uri: "https://spotify-discover-always.vercel.app/api/authenticate",
+    redirect_uri: "https://spotify-discover-always.vercel.app/api/persist",
     state: generateRandomString(16),
   };
   res.redirect(
