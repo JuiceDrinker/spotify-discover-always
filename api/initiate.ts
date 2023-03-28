@@ -28,10 +28,11 @@ const createResponseParams = () => ({
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   const state = generateRandomString(16);
+  console.log("here");
   const cookie = serialize("spotify_auth_state", state);
   res.setHeader("Set-Cookie", [cookie]);
-  const params = res.redirect(
-    `${SPOTIFY_BASE_URI}/authorize?` +
+  res.redirect(
+    "https://accounts.spotify.com/authorize?" +
       new URLSearchParams({ ...createResponseParams(), state }).toString()
   );
 };
