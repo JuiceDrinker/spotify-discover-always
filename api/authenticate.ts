@@ -3,7 +3,7 @@ import { serialize } from "cookie";
 
 const authScope = {
   GET_PLAYLIST_ITEMS: "playlist-read-private",
-  MODIFY_PLAYLISTS: "playlist-modifiy-private",
+  MODIFY_PLAYLISTS: "playlist-modify-private",
 } as const;
 
 const generateRandomString = (length: number) => {
@@ -29,6 +29,7 @@ const createResponseParams = () => ({
 export default async (req: VercelRequest, res: VercelResponse) => {
   const state = generateRandomString(16);
   const cookie = serialize("spotify_auth_state", state);
+  console.log(createResponseParams().scope);
   res.setHeader("Set-Cookie", [cookie]);
   const params = res.redirect(
     "https://accounts.spotify.com/authorize?" +
