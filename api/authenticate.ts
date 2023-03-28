@@ -1,38 +1,33 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { serialize } from "cookie";
-
-const authScope = {
-  GET_PLAYLIST_ITEMS: "playlist-read-private",
-  MODIFY_PLAYLISTS: "playlist-modify-private",
-} as const;
-
-const generateRandomString = (length: number) => {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
-    result += chars.charAt(randomIndex);
-  }
-
-  return result;
-};
-
-const createResponseParams = () => ({
-  response_type: "code",
-  client_id: process.env.CLIENT_ID || "dummyClientId",
-  scope: `${authScope.GET_PLAYLIST_ITEMS} ${authScope.MODIFY_PLAYLISTS}`,
-  redirect_uri: "https://spotify-discover-always.vercel.app/api/persist",
-});
+import { SPOTIFY_BASE_URI } from "../config";
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const state = generateRandomString(16);
-  const cookie = serialize("spotify_auth_state", state);
-  console.log(createResponseParams().scope);
-  res.setHeader("Set-Cookie", [cookie]);
-  const params = res.redirect(
-    "https://accounts.spotify.com/authorize?" +
-      new URLSearchParams({ ...createResponseParams(), state }).toString()
-  );
+  const {
+    query: { code = null, state = null },
+    cookies,
+  } = req;
+  const storedState: unknown = JSON.parse(cookies["spotify_auth"]);
+  if (state !== storedState) {
+    res.status(403).json({ message: "Forbidden" });
+  }
+
+  res.json({ message: "Hey" });
 };
+
+const createAuthOptions = (code: string) => ({
+  url: `${SPOTIFY_BASE_URI}/api/token`,
+  form: {
+    code: code,
+    redirect_uri: "https://spotify-discover-always.vercel.app/api/authenticate",
+    grant_type: "authorization_code",
+  },
+  headers: {
+    Authorization:
+      "Basic " +
+      Buffer.from(
+        process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET,
+        "base64"
+      ),
+  },
+  json: true,
+});
