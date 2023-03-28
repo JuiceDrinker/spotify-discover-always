@@ -1,19 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
+import { serialize } from "cookie";
 
-export default async (req: VercelRequest, res: VercelResponse) => {
-  const scope = "user-read-private user-read-email";
-  const params = {
-    response_type: "code",
-    client_id: process.env.CLIENT_ID || "dummyClientId",
-    scope: scope,
-    redirect_uri: "https://spotify-discover-always.vercel.app/api/persist",
-    state: generateRandomString(16),
-  };
-  res.redirect(
-    "https://accounts.spotify.com/authorize?" +
-      new URLSearchParams(params).toString()
-  );
-};
+const authScope = {
+  GET_PLAYLIST_ITEMS: "playlist-read-private",
+  MODIFY_PLAYLISTS: "playlist-modifiy-private",
+} as const;
 
 const generateRandomString = (length: number) => {
   const chars =
@@ -26,4 +17,21 @@ const generateRandomString = (length: number) => {
   }
 
   return result;
+};
+
+const createResponseParams = () => ({
+  response_type: "code",
+  client_id: process.env.CLIENT_ID || "dummyClientId",
+  scope: `${authScope.GET_PLAYLIST_ITEMS} ${authScope.MODIFY_PLAYLISTS}`,
+  redirect_uri: "https://spotify-discover-always.vercel.app/api/persist",
+});
+
+export default async (req: VercelRequest, res: VercelResponse) => {
+  const state = generateRandomString(16);
+  const cookie = serialize("spotify_auth_state", state);
+  res.setHeader("Set-Cookie", [cookie]);
+  const params = res.redirect(
+    "https://accounts.spotify.com/authorize?" +
+      new URLSearchParams({ ...createResponseParams(), state }).toString()
+  );
 };
