@@ -2,7 +2,7 @@
   "routes": [
     {
       "src": "/",
-      "dest": "/api/authenticate.ts"
+      "dest": "/api/initiate.ts"
     }
   ]
 }
