@@ -1,6 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { serialize } from "cookie";
-import { SPOTIFY_BASE_URI } from "../config";
 const authScope = {
   GET_PLAYLIST_ITEMS: "playlist-read-private",
   MODIFY_PLAYLISTS: "playlist-modify-private",
