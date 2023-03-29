@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
+import { getRedirectUri } from "../utils";
 export default async (req: VercelRequest, res: VercelResponse) => {
   const {
     query: { code = null, state = null },
@@ -14,9 +15,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     `https://accounts.spotify.com/api/token`,
     {
       code,
-      redirect_uri:
-        "https://spotify-discover-always.vercel.app/api/authenticate",
-      // redirect_uri: "http://localhost:3000/authenticate",
+      redirect_uri: getRedirectUri(),
       grant_type: "authorization_code",
     },
     {
@@ -38,7 +37,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   const me = await axios.get(`https://api.spotify.com/v1/me/playlists`, {
     headers: { Authorization: "Bearer " + authResponse.data.access_token },
   });
-  console.log(me);
+  // console.log(me);
+  const discoverWeekly = me.data.items.map(
+    (item: { name: string }) => item.name === "Discover Weekly"
+  );
+  if (!discoverWeekly) {
+    res.json({ message: "Cannot find Discover Weekly playlist" });
+  }
+
+  // console.log(discoverWeekly);
   res.json({ message: "Hey" });
 };
 
