@@ -6,6 +6,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   } = req;
 
   if (state !== req.cookies["spotify_auth_state"]) {
+    console.log("here");
     res.status(403).json({ message: "Forbidden" });
   }
 
