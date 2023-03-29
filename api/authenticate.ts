@@ -40,7 +40,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     headers: { Authorization: "Bearer " + authResponse.data.access_token },
   });
 
-  const discoverWeekly = playlists.data.items.map(
+  const discoverWeekly = playlists.data.items.find(
     (item: { name: string }) => item.name === "Discover Weekly"
   );
 
@@ -48,12 +48,33 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.json({ message: "Cannot find Discover Weekly playlist" });
   }
 
+  console.log("Weekly", discoverWeekly);
+  const discoverWeeklyTracks: {
+    data: { items: { track: { uri: string } }[] };
+  } = await axios.get(discoverWeekly.tracks.href, {
+    headers: { Authorization: "Bearer " + authResponse.data.access_token },
+  });
   const discoverAlways = await axios.post(
     `https://api.spotify.com/v1/users/${me.data.id}/playlists`,
     { name: "Discover Always" },
     { headers: { Authorization: "Bearer " + authResponse.data.access_token } }
   );
-  console.log(discoverAlways);
+
+  await axios.post(
+    `https://api.spotify.com/v1/playlists/${discoverAlways.data.id}/tracks?` +
+      new URLSearchParams({
+        uris: discoverWeeklyTracks.data.items.reduce(
+          (param, item) => (param += `${item.track.uri},`),
+          ""
+        ),
+      }),
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${authResponse.data.access_token}`,
+      },
+    }
+  );
 
   res.json({ message: "Hey" });
 };
