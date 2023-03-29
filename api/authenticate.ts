@@ -57,7 +57,3 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
   res.json({ message: "Hey" });
 };
-
-const createAuthOptions = (code: string) => ({
-  json: true,
-});
