@@ -3,6 +3,10 @@
     {
       "src": "/",
       "dest": "/api/initiate.ts"
+    },
+    {
+      "src": "/authenticate",
+      "dest": "api/authenticate.ts"
     }
   ]
 }
