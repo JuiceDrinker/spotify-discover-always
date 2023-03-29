@@ -7,7 +7,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   } = req;
 
   if (state !== req.cookies["spotify_auth_state"]) {
-    console.log("here");
     res.status(403).json({ message: "Forbidden" });
   }
 
@@ -34,18 +33,28 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.status(403).json({ message: "Auth failed" });
   }
 
-  const me = await axios.get(`https://api.spotify.com/v1/me/playlists`, {
+  const me = await axios.get(`https://api.spotify.com/v1/me`, {
     headers: { Authorization: "Bearer " + authResponse.data.access_token },
   });
-  // console.log(me);
-  const discoverWeekly = me.data.items.map(
+  const playlists = await axios.get(`https://api.spotify.com/v1/me/playlists`, {
+    headers: { Authorization: "Bearer " + authResponse.data.access_token },
+  });
+
+  const discoverWeekly = playlists.data.items.map(
     (item: { name: string }) => item.name === "Discover Weekly"
   );
+
   if (!discoverWeekly) {
     res.json({ message: "Cannot find Discover Weekly playlist" });
   }
 
-  // console.log(discoverWeekly);
+  const discoverAlways = await axios.post(
+    `https://api.spotify.com/v1/users/${me.data.id}/playlists`,
+    { name: "Discover Always" },
+    { headers: { Authorization: "Bearer " + authResponse.data.access_token } }
+  );
+  console.log(discoverAlways);
+
   res.json({ message: "Hey" });
 };
 
