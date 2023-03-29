@@ -1,5 +1,4 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { SPOTIFY_BASE_URI } from "../config";
 import axios from "axios";
 export default async (req: VercelRequest, res: VercelResponse) => {
   const {
@@ -11,7 +10,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   }
 
   const authResponse = await axios.post(
-    `${SPOTIFY_BASE_URI}api/token`,
+    `https://accounts.spotify.com/api/token`,
     {
       code,
       redirect_uri:
@@ -35,7 +34,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.status(403).json({ message: "Forbidden" });
   }
 
-  const me = await axios.get(`https://api.spotify.com/v1/me`, {
+  const me = await axios.get(`https://api.spotify.com/v1/me/playlists`, {
     headers: { Authorization: "Bearer " + authResponse.data.access_token },
   });
   console.log(me);

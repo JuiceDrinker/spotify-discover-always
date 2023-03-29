@@ -28,7 +28,6 @@ const createResponseParams = () => ({
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   const state = generateRandomString(16);
-  console.log("here");
   const cookie = serialize("spotify_auth_state", state);
   res.setHeader("Set-Cookie", [cookie]);
   res.redirect(
