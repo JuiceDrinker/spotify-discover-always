@@ -24,6 +24,7 @@ const createResponseParams = () => ({
   client_id: process.env.CLIENT_ID || "dummyClientId",
   scope: `${authScope.GET_PLAYLIST_ITEMS} ${authScope.MODIFY_PLAYLISTS}`,
   redirect_uri: "https://spotify-discover-always.vercel.app/api/authenticate",
+  // redirect_uri: "http://localhost:3000/authenticate",
 });
 
 export default async (req: VercelRequest, res: VercelResponse) => {
@@ -33,6 +34,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   res.setHeader("Set-Cookie", [cookie]);
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
-      new URLSearchParams({ ...createResponseParams(), state }).toString()
+      new URLSearchParams({
+        ...createResponseParams(),
+        state,
+      }).toString()
   );
 };
