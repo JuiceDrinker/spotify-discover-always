@@ -31,7 +31,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   );
 
   if (authResponse.status !== 200) {
-    res.status(403).json({ message: "Forbidden" });
+    res.status(403).json({ message: "Auth failed" });
   }
 
   const me = await axios.get(`https://api.spotify.com/v1/me/playlists`, {
