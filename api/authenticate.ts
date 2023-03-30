@@ -48,7 +48,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.json({ message: "Cannot find Discover Weekly playlist" });
   }
 
-  console.log("Weekly", discoverWeekly);
   const discoverWeeklyTracks: {
     data: { items: { track: { uri: string } }[] };
   } = await axios.get(discoverWeekly.tracks.href, {
