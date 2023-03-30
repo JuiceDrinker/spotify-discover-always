@@ -15,3 +15,7 @@ export const getRedirectUri = () =>
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000/authenticate"
     : "https://spotify-discover-always.vercel.app/api/authenticate";
+
+export const createAuthHeader = (token: string) => ({
+  Authorization: `Bearer ${token}`,
+});
