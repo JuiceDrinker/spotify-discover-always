@@ -6,7 +6,9 @@ import {
   getMe,
   getMePlaylists,
 } from "../spotifyWebAPI";
-import { createAuthHeader, getRedirectUri } from "../utils";
+import { createAuthHeader, encrypt, getRedirectUri } from "../utils";
+import mysql from "mysql";
+
 export default async (req: VercelRequest, res: VercelResponse) => {
   try {
     const {
@@ -14,7 +16,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     } = req;
 
     if (state !== req.cookies["spotify_auth_state"]) {
-      res.status(403).json({ message: "Forbidden" });
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     const authResponse = await axios.post(
@@ -37,7 +39,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     );
 
     if (authResponse.status !== 200) {
-      res.status(403).json({ message: "Auth failed" });
+      return res.status(403).json({ message: "Auth failed" });
     }
 
     const me = await getMe(authResponse.data.access_token);
@@ -49,7 +51,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     );
 
     if (!discoverWeekly) {
-      res.json({ message: "Cannot find Discover Weekly playlist" });
+      console.log(
+        "playlists",
+        playlists.data.items.map((item: { name: any }) => item.name)
+      );
+      return res.json({ message: "Cannot find Discover Weekly playlist" });
     }
 
     const discoverWeeklyTracks: {
@@ -69,7 +75,19 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       discoverWeeklyTracks.data.items
     );
 
-    res.json({ message: "Hey" });
+    const dbConn = mysql.createConnection(process.env.DATABASE_URL ?? "");
+    console.log("Connected to DB...");
+
+    // prettier-ignore
+    const query = `INSERT INTO users (username, refresh_token, discoverAlwaysId, discoverWeeklyId) VALUES ('${ me.data.display_name }','${encrypt(authResponse.data.refresh_token)}','${ discoverAlways.data.id }','${discoverWeekly.id}');`;
+    return dbConn.query(query, (err, results) => {
+      if (err) {
+        console.error(err);
+        throw err;
+      }
+      dbConn.end();
+      return res.status(201).json({ message: "Success!" });
+    });
   } catch (e) {
     console.error(e);
   }
