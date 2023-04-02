@@ -82,7 +82,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     );
     const { encrypted, authTag } = encrypt(authResponse.data.refresh_token);
     const query = `INSERT INTO users (username, refresh_token, auth_tag, discoverAlwaysId, discoverWeeklyId) VALUES ('${me.data.display_name}','${encrypted}', '${authTag}', '${discoverAlways.data.id}','${discoverWeekly.id}');`;
-    return dbConn.execute(query);
+    await dbConn.execute(query);
+    return res.status(201).json({ message: "Success!" });
   } catch (e) {
     console.error(e);
   }
