@@ -7,6 +7,10 @@
     {
       "src": "/authenticate",
       "dest": "api/authenticate.ts"
+    },
+    {
+      "src": "/transfer",
+      "dest": "api/transferWeekly.ts"
     }
   ]
 }
