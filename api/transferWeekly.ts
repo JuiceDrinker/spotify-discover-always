@@ -57,7 +57,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 headers: createAuthHeader(token),
               }
             );
-            const result = await addTracksToPlaylist(
+            await addTracksToPlaylist(
               token,
               discoverAlwaysId,
               discoverWeeklyTracks.data.items
