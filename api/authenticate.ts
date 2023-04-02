@@ -75,8 +75,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     console.log("Connected to DB...");
 
     const { encrypted, authTag } = encrypt(authResponse.data.refresh_token);
-    // prettier-ignore
-    const query = `INSERT INTO users (username, refresh_token, auth_tag, discoverAlwaysId, discoverWeeklyId) VALUES ('${ me.data.display_name }','${encrypted}', '${authTag}', '${ discoverAlways.data.id }','${discoverWeekly.id}');`;
+    const query = `INSERT INTO users (username, refresh_token, auth_tag, discoverAlwaysId, discoverWeeklyId) VALUES ('${me.data.display_name}','${encrypted}', '${authTag}', '${discoverAlways.data.id}','${discoverWeekly.id}');`;
     return dbConn.query(query, (err, results) => {
       if (err) {
         console.error(err);
