@@ -67,7 +67,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       );
 
       dbConn.end();
-      return res.status(201).json({ message: results });
+      return res.status(201).json({ message: "Copied over tracks" });
     }
   );
 };
