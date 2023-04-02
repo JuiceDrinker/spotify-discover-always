@@ -31,10 +31,12 @@ export const encrypt = (string: string) => {
     Buffer.from(process.env.KEY, "hex"),
     Buffer.from(process.env.IV, "hex")
   );
-  return cipher.update(string, "utf-8", "hex") + cipher.final("hex");
+  const encrypted = cipher.update(string, "utf-8", "hex") + cipher.final("hex");
+  const authTag = cipher.getAuthTag().toString("hex");
+  return { encrypted, authTag };
 };
 
-export const decrypt = (string: string) => {
+export const decrypt = (string: string, auth_tag: string) => {
   if (!process.env.KEY || !process.env.IV) {
     throw new Error("Decryption failed");
   }
@@ -43,5 +45,6 @@ export const decrypt = (string: string) => {
     Buffer.from(process.env.KEY, "hex"),
     Buffer.from(process.env.IV, "hex")
   );
-  return cipher.update(string, "hex", "utf-8") + cipher.final("hex");
+  cipher.setAuthTag(Buffer.from(auth_tag, "hex"));
+  return cipher.update(string, "hex", "utf-8") + cipher.final("utf-8");
 };

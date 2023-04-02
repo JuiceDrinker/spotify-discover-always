@@ -51,10 +51,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     );
 
     if (!discoverWeekly) {
-      console.log(
-        "playlists",
-        playlists.data.items.map((item: { name: any }) => item.name)
-      );
       return res.json({ message: "Cannot find Discover Weekly playlist" });
     }
 
@@ -78,8 +74,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const dbConn = mysql.createConnection(process.env.DATABASE_URL ?? "");
     console.log("Connected to DB...");
 
+    const { encrypted, authTag } = encrypt(authResponse.data.refresh_token);
     // prettier-ignore
-    const query = `INSERT INTO users (username, refresh_token, discoverAlwaysId, discoverWeeklyId) VALUES ('${ me.data.display_name }','${encrypt(authResponse.data.refresh_token)}','${ discoverAlways.data.id }','${discoverWeekly.id}');`;
+    const query = `INSERT INTO users (username, refresh_token, auth_tag, discoverAlwaysId, discoverWeeklyId) VALUES ('${ me.data.display_name }','${encrypted}', '${authTag}', '${ discoverAlways.data.id }','${discoverWeekly.id}');`;
     return dbConn.query(query, (err, results) => {
       if (err) {
         console.error(err);
