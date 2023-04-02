@@ -12,5 +12,11 @@
       "src": "/transfer",
       "dest": "api/transferWeekly.ts"
     }
+  ],
+  "crons": [
+    {
+      "path": "api/transferWeekly.ts",
+      "schedule": "0 2 * * 2"
+    }
   ]
 }
