@@ -7,7 +7,7 @@ import {
   getMePlaylists,
 } from "../spotifyWebAPI";
 import { createAuthHeader, encrypt, getRedirectUri } from "../utils";
-import mysql from "mysql";
+import mysql from "mysql2/promise";
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   try {
@@ -60,6 +60,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       headers: createAuthHeader(authResponse.data.access_token),
     });
 
+    const dbConn = await mysql.createConnection(process.env.DATABASE_URL ?? "");
+    console.log("Connected to DB...");
+    const [rows, fields] = await dbConn.execute(
+      `SELECT COUNT(username) FROM users WHERE username='${me.data.display_name}'`
+    );
+    // @ts-ignore
+    if (rows[0]["count(username)"]) {
+      return res.status(403).json("User already exists in DB");
+    }
+
     const discoverAlways = await createPlaylist(
       authResponse.data.access_token,
       me.data.id
@@ -70,20 +80,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       discoverAlways.data.id,
       discoverWeeklyTracks.data.items
     );
-
-    const dbConn = mysql.createConnection(process.env.DATABASE_URL ?? "");
-    console.log("Connected to DB...");
-
     const { encrypted, authTag } = encrypt(authResponse.data.refresh_token);
     const query = `INSERT INTO users (username, refresh_token, auth_tag, discoverAlwaysId, discoverWeeklyId) VALUES ('${me.data.display_name}','${encrypted}', '${authTag}', '${discoverAlways.data.id}','${discoverWeekly.id}');`;
-    return dbConn.query(query, (err, results) => {
-      if (err) {
-        console.error(err);
-        throw err;
-      }
-      dbConn.end();
-      return res.status(201).json({ message: "Success!" });
-    });
+    return dbConn.execute(query);
   } catch (e) {
     console.error(e);
   }
