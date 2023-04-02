@@ -71,6 +71,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       discoverWeeklyTracks.data.items
     );
 
+    console.log(process.env.DATABASE_URL);
     const dbConn = mysql.createConnection(process.env.DATABASE_URL ?? "");
     console.log("Connected to DB...");
 
